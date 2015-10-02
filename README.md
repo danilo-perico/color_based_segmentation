@@ -2,4 +2,4 @@
 
 Python-opencv color segmentation with trackbars
 
-It uses moments to capture the mass center and the area of the segmented object.
+It uses moments to capture mass center and area of the segmented object.
