@@ -20,6 +20,9 @@ while(1):
 
     # Take each frame
     ret, frame = cap.read()
+    #set resolution:
+    cap.set(3,640)
+    cap.set(4,480)
     
     # Convert BGR to HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
