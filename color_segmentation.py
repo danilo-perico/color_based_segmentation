@@ -15,14 +15,14 @@ cv2.createTrackbar('V_Low','image',0,255,nothing)
 cv2.createTrackbar('V_High','image',255,255,nothing)
 
 cap = cv2.VideoCapture(0)
+#set resolution:
+cap.set(3,640)
+cap.set(4,480)
 
 while(1):
 
     # Take each frame
     ret, frame = cap.read()
-    #set resolution:
-    cap.set(3,640)
-    cap.set(4,480)
     
     # Convert BGR to HSV
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
