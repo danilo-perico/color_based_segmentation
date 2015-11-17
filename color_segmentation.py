@@ -1,3 +1,5 @@
+#! /usr/bin/env python
+
 import cv2
 import cv2.cv as cv
 import numpy as np
@@ -5,19 +7,19 @@ import numpy as np
 def nothing(x):
     pass
 
-cv2.namedWindow('image')
+cv2.namedWindow('image_controls',cv.CV_WINDOW_NORMAL)
 # create trackbars for color change
-cv2.createTrackbar('H_Low','image',0,255,nothing)
-cv2.createTrackbar('H_High','image',0,255,nothing)
-cv2.createTrackbar('S_Low','image',0,255,nothing)
-cv2.createTrackbar('S_High','image',255,255,nothing)
-cv2.createTrackbar('V_Low','image',0,255,nothing)
-cv2.createTrackbar('V_High','image',255,255,nothing)
+cv2.createTrackbar('H_Low','image_controls',0,255,nothing)
+cv2.createTrackbar('H_High','image_controls',0,255,nothing)
+cv2.createTrackbar('S_Low','image_controls',0,255,nothing)
+cv2.createTrackbar('S_High','image_controls',255,255,nothing)
+cv2.createTrackbar('V_Low','image_controls',0,255,nothing)
+cv2.createTrackbar('V_High','image_controls',255,255,nothing)
+cv2.createTrackbar('Erosion','image_controls',0,50,nothing)
+cv2.createTrackbar('Dilation','image_controls',0,50,nothing)
+cv2.createTrackbar('Blur','image_controls',1,50,nothing)
 
 cap = cv2.VideoCapture(0)
-#set resolution:
-cap.set(3,640)
-cap.set(4,480)
 
 while(1):
 
@@ -28,31 +30,41 @@ while(1):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
 
     # get current positions of four trackbars
-    h_high  = cv2.getTrackbarPos('H_High','image')
-    h_low = cv2.getTrackbarPos('H_Low','image')
-    s_high = cv2.getTrackbarPos('S_High','image')
-    s_low = cv2.getTrackbarPos('S_Low','image')
-    v_high = cv2.getTrackbarPos('V_High','image')
-    v_low = cv2.getTrackbarPos('V_Low','image')
+    erosion_input = cv2.getTrackbarPos('Erosion','image_controls')
+    dilation_input = cv2.getTrackbarPos('Dilation','image_controls')
+    blur_input = cv2.getTrackbarPos('Blur', 'image_controls')
+    h_high  = cv2.getTrackbarPos('H_High','image_controls')
+    h_low = cv2.getTrackbarPos('H_Low','image_controls')
+    s_high = cv2.getTrackbarPos('S_High','image_controls')
+    s_low = cv2.getTrackbarPos('S_Low','image_controls')
+    v_high = cv2.getTrackbarPos('V_High','image_controls')
+    v_low = cv2.getTrackbarPos('V_Low','image_controls')
+    
+    if blur_input % 2 == 1:
+        pass
+    else:
+        blur_input = blur_input + 1
+        cv2.setTrackbarPos('Blur', 'image_controls', blur_input)
+       
     
     #orange:
-    lower_blue = np.array([h_low,s_low,v_low]) 
-    upper_blue = np.array([h_high,s_high,v_high])
+    lower = np.array([h_low,s_low,v_low]) 
+    upper = np.array([h_high,s_high,v_high])
     
     # Threshold the HSV image to get only orange colors
-    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    mask = cv2.inRange(hsv, lower, upper)
 
 	#erosion
     kernel = np.ones((5,5),np.uint8)
-    erosion = cv2.erode(mask,kernel,iterations=3)
+    erosion = cv2.erode(mask,kernel,iterations=erosion_input)
 
     #dilation
-    dilation = cv2.dilate(erosion,kernel,iterations=3)
+    dilation = cv2.dilate(erosion,kernel,iterations=dilation_input)
 
-    img = cv2.medianBlur(dilation,21)
+    img = cv2.medianBlur(dilation,blur_input)
 
     # Bitwise-AND mask and original image
-    res = cv2.bitwise_and(frame,frame, mask=dilation)
+    res = cv2.bitwise_and(frame,frame, mask=img)
 
     momento = cv2.moments(img)
     try:
@@ -80,22 +92,22 @@ while(1):
     if k == 27:
         break
     if k ==  98: #b - blue
-        cv2.setTrackbarPos('H_High', 'image', 130)
-        cv2.setTrackbarPos('H_Low', 'image', 75)
+        cv2.setTrackbarPos('H_High', 'image_controls', 130)
+        cv2.setTrackbarPos('H_Low', 'image_controls', 75)
     if k ==  111: #o - orange
-        cv2.setTrackbarPos('H_High', 'image', 22)
-        cv2.setTrackbarPos('H_Low', 'image', 0)
+        cv2.setTrackbarPos('H_High', 'image_controls', 22)
+        cv2.setTrackbarPos('H_Low', 'image_controls', 0)
     if k ==  121: #y - yellow
-        cv2.setTrackbarPos('H_High', 'image', 38)
-        cv2.setTrackbarPos('H_Low', 'image', 22)
+        cv2.setTrackbarPos('H_High', 'image_controls', 38)
+        cv2.setTrackbarPos('H_Low', 'image_controls', 22)
     if k ==  103: #g - green
-        cv2.setTrackbarPos('H_High', 'image', 92)
-        cv2.setTrackbarPos('H_Low', 'image', 75)     
+        cv2.setTrackbarPos('H_High', 'image_controls', 61)
+        cv2.setTrackbarPos('H_Low', 'image_controls', 21)     
     if k ==  118: #v - violet
-        cv2.setTrackbarPos('H_High', 'image', 160)
-        cv2.setTrackbarPos('H_Low', 'image', 130)  
+        cv2.setTrackbarPos('H_High', 'image_controls', 160)
+        cv2.setTrackbarPos('H_Low', 'image_controls', 130)  
     if k ==  114: #r - red
-        cv2.setTrackbarPos('H_High', 'image', 179)
-        cv2.setTrackbarPos('H_Low', 'image', 160) 
+        cv2.setTrackbarPos('H_High', 'image_controls', 179)
+        cv2.setTrackbarPos('H_Low', 'image_controls', 160) 
 
 cv2.destroyAllWindows()
